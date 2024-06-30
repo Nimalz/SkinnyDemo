@@ -1,8 +1,12 @@
+
 作品タイトル：スキンメッシュ実装研究
 制作時期：2024年2月中旬-4月中旬（HAL東京入学してから10ヶ月） 
 制作期間：約２ヶ月（約60時間） 
 制作形式：個人制作 制作環境：C＋＋、OpenGL、VisualStudio2019 
 動作環境：Windows 
+実行ファイルをダウンロード:https://drive.google.com/file/d/1D35O24E8BTutyqjI2E7k7R9QBjYTw3qq/view?usp=sharing
+紹介動画：https://www.youtube.com/watch?v=hWI0laObXxo
+
 作品紹介： 本作品はスキンメッシュアニメーションの読み込み、再生、ブレンディング及びマスキン グ機能を実現した技術デモです。 
 本作品で実現したこと： 
 １．Assimp ライブラリを使い、モデル及びアニメーションデーターを読込む。 
