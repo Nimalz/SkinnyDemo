@@ -68,7 +68,7 @@ void Model::SetVertexBoneDataToDefault(Vertex& vertex)
 //@Mesh‚Ì’†g‚ğ–„‚ß‚é
 void Model::processMesh(aiMesh* mesh, const aiScene* scene, int mesh_index)
 {
-
+	
 	vector<Vertex> vertices;
 	vector<unsigned int> indices;
 	vector<Texture> textures;

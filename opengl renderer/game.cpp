@@ -34,24 +34,38 @@ void Game::Release()
 
 	for (int i = 0; i < m_Model.size(); i++)
 	{
-		m_Model[i].Uninit();
+		m_Model[i]->Uninit();
+		delete m_Model[i];
 	}
 	m_Model.clear();
 	m_Model.shrink_to_fit();
 
+	for (int i = 0; i < m_Animation.size(); i++)
+	{
+		delete m_Animation[i];
+	}
 	m_Animation.clear();
 	m_Animation.shrink_to_fit();
 
+	for (int i = 0; i < m_Blender.size(); i++)
+	{
+		delete m_Blender[i];
+	}
 	m_Blender.clear();
 	m_Blender.shrink_to_fit();
 
 	for (int i = 0; i < m_Field.size(); i++)
 	{
-		m_Field[i].Clear();
+		m_Field[i]->Clear();
+		delete m_Field[i];
 	}
 	m_Field.clear();
 	m_Field.shrink_to_fit();
 
+	for (int i = 0; i < m_Player.size(); i++)
+	{
+		delete m_Player[i];
+	}
 	m_Player.clear();
 	m_Player.shrink_to_fit();
 }
@@ -113,12 +127,12 @@ void Game::Update()
 	if (m_AniPause)
 	{
 		for (int i = 0; i < m_Player.size(); i++)
-			m_Player[i].Update(m_Timer.DeltaTime());
+			m_Player[i]->Update(m_Timer.DeltaTime());
 	}
 	else
 	{
 		for (int i = 0; i < m_Player.size(); i++)
-			m_Player[i].Update(0.0f);
+			m_Player[i]->Update(0.0f);
 	}
 }
 
@@ -145,7 +159,7 @@ void Game::PreDraw()
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 	//ImGuizmo::BeginFrame();
-	m_Player[0].UpdatePlayerVectors(m_Camera);
+	m_Player[0]->UpdatePlayerVectors(m_Camera);
 }
 
 void Game::DrawPolygons()
@@ -157,14 +171,14 @@ void Game::DrawPolygons()
 	m_Camera.BindCamera(ourShader);
 	for (int i = 0; i < m_Player.size(); i++)
 	{
-		m_Player[i].BindFinalBoneMatrices(ourShader);
-		m_Player[i].BindWorldMatrix(ourShader);
+		m_Player[i]->BindFinalBoneMatrices(ourShader);
+		m_Player[i]->BindWorldMatrix(ourShader);
 	}
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	m_Light[0]->BindLight(m_Shaders[0]);
 	for (int i = 0; i < m_Player.size(); i++)
-		m_Player[i].Draw(m_Shaders[0]);
+		m_Player[i]->Draw(m_Shaders[0]);
 
 	m_Shaders[1].use();
 	m_Shadow[0].BindShadow(m_Shaders[1]);
@@ -173,7 +187,7 @@ void Game::DrawPolygons()
 	m_Shaders[1].setMat3("model", model);
 	reinterpret_cast<DirLight*>(m_Light[0])->BindLight(m_Shaders[1]);
 	for (int i = 0; i < m_Field.size(); i++)
-		m_Field[i].DrawMeshField(m_Shaders[1]);
+		m_Field[i]->DrawMeshField(m_Shaders[1]);
 }
 
 void Game::RenderShadow()
@@ -181,13 +195,13 @@ void Game::RenderShadow()
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	//glCullFace(GL_FRONT);
 	Shader& ourShader = m_Shaders[2];
-	m_Shadow[0].SetupLightFrustumDir(&m_Player[0]);
+	m_Shadow[0].SetupLightFrustumDir(m_Player[0]);
 	m_Shadow[0].StartShadowPass(ourShader);
 	for (int i = 0; i < m_Player.size(); i++)
 	{
-		m_Player[i].BindFinalBoneMatrices(ourShader);
-		m_Player[i].BindWorldMatrix(ourShader);
-		m_Player[i].Draw(ourShader);
+		m_Player[i]->BindFinalBoneMatrices(ourShader);
+		m_Player[i]->BindWorldMatrix(ourShader);
+		m_Player[i]->Draw(ourShader);
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -201,20 +215,20 @@ void Game::DrawImgui()
 	ImGui::Begin("Player");
 	if (ImGui::CollapsingHeader("Position"))
 	{
-		ImGui::SliderFloat("x", &m_Player[0].pos.x, -50.0f, 50.0f);
-		ImGui::SliderFloat("y", &m_Player[0].pos.y, 0.0f, 50.0f);
-		ImGui::SliderFloat("z", &m_Player[0].pos.z, -50.0f, 50.0f);
+		ImGui::SliderFloat("x", &m_Player[0]->pos.x, -50.0f, 50.0f);
+		ImGui::SliderFloat("y", &m_Player[0]->pos.y, 0.0f, 50.0f);
+		ImGui::SliderFloat("z", &m_Player[0]->pos.z, -50.0f, 50.0f);
 
 	}
 	if (ImGui::CollapsingHeader("Rotation"))
 	{
-		ImGui::SliderFloat("pitch", &m_Player[0].rot.x, -360.0f, 360.0f);
-		ImGui::SliderFloat("yaw", &m_Player[0].rot.y, -360.0f, 360.0f);
-		ImGui::SliderFloat("roll", &m_Player[0].rot.z, -360.0f, 360.0f);
+		ImGui::SliderFloat("pitch", &m_Player[0]->rot.x, -360.0f, 360.0f);
+		ImGui::SliderFloat("yaw", &m_Player[0]->rot.y, -360.0f, 360.0f);
+		ImGui::SliderFloat("roll", &m_Player[0]->rot.z, -360.0f, 360.0f);
 
 	}
 	if (ImGui::Button("Reset")) {
-		m_Player[0].Reset();
+		m_Player[0]->Reset();
 	}
 
 
@@ -249,7 +263,7 @@ void Game::DrawImgui()
 	static bool blendInit = false;
 	if (!blendInit)
 	{
-		blender.AnimationIn = m_Player[0].RetrieveAni(item_blend_idx);
+		blender.AnimationIn = m_Player[0]->RetrieveAni(item_blend_idx);
 		blender.FadeInTime = 0.0f;
 		blender.StartTime = 0.0f;
 		blender.Loop = true;
@@ -261,7 +275,7 @@ void Game::DrawImgui()
 
 	//if (!m_Input)
 	{
-		item_current_idx = m_Player[0].GetAniIndex();
+		item_current_idx = m_Player[0]->GetAniIndex();
 		if (item_current_idx > 12)
 			item_current_idx = 0;
 	}
@@ -277,7 +291,7 @@ void Game::DrawImgui()
 			if (ImGui::Selectable(items[n], is_selected))
 			{
 				item_current_idx = n;
-				m_Player[0].PlayAni(static_cast<PlayerMove>(item_current_idx));
+				m_Player[0]->PlayAni(static_cast<PlayerMove>(item_current_idx));
 			}
 
 			if (is_selected)
@@ -288,7 +302,7 @@ void Game::DrawImgui()
 		ImGui::EndCombo();
 	}
 
-	ImGui::SliderFloat("Time:ms", m_Player[0].m_Animator.GetCurrentTime(), 0.0f, m_Player[0].m_Animator.GetCurrentAni()->GetDuration());
+	ImGui::SliderFloat("Time:ms", m_Player[0]->m_Animator.GetCurrentTime(), 0.0f, m_Player[0]->m_Animator.GetCurrentAni()->GetDuration());
 
 	if (ImGui::BeginCombo("Animation 2", combo_preview_value2))
 	{
@@ -299,7 +313,7 @@ void Game::DrawImgui()
 			if (ImGui::Selectable(items[n], is_selected))
 			{
 				item_blend_idx = n;
-				blender.AnimationIn = m_Player[0].RetrieveAni(item_blend_idx);
+				blender.AnimationIn = m_Player[0]->RetrieveAni(item_blend_idx);
 				if (blender.StartTime > blender.AnimationIn->GetDuration())
 					blender.StartTime = blender.AnimationIn->GetDuration();
 			}
@@ -314,7 +328,7 @@ void Game::DrawImgui()
 	ImGui::SliderFloat("Start Time:ms", &blender.StartTime, 0.0f, blender.AnimationIn->GetDuration());
 	ImGui::SliderFloat("Fade In Time:ms", &blender.FadeInTime, 0.0f, 450.00f);
 	if (ImGui::Button("Blend")) {
-		m_Player[0].StartBlend(&blender, item_blend_idx);
+		m_Player[0]->StartBlend(&blender, item_blend_idx);
 	}
 	ImGui::End();
 	ImGui::Begin("Bone Hierarchy");
@@ -323,7 +337,7 @@ void Game::DrawImgui()
 		if (ImGui::Button("Use all bones")) {
 			UseAllBones();
 		}
-		ReadNodeHierarchyImGui(m_Player[0].m_Animator.GetCurrentAni()->GetModel()->GetRootNode());
+		ReadNodeHierarchyImGui(m_Player[0]->m_Animator.GetCurrentAni()->GetModel()->GetRootNode());
 
 	}
 	ImGui::End();
@@ -426,73 +440,80 @@ bool Game::InitImgui()
 bool Game::InitResouce()
 {
 	//モデルを読み込む
-	m_Model.emplace_back("../MODEL/Maria/Maria.dae");
+	Model* tempModel;
+	tempModel = new Model("../MODEL/Maria/Maria.dae");
+	m_Model.push_back(tempModel);
 	//Normalmapを読み込む
 	Texture normal = Model::loadMaterialTexturesManully("textures/maria_normal.png", std::string("texture_normal"), "../MODEL/Maria");
-	m_Model[0].m_Meshes[0].m_Textures.emplace_back(std::move(normal));
+	m_Model[0]->m_Meshes[0].m_Textures.emplace_back(std::move(normal));
 
 	//アニメーションを読み込む
 	m_Animation.reserve(12);
-	m_Animation.emplace_back("../MODEL/Maria/Great Sword Idle.dae", &m_Model[0]);
-	m_Animation.emplace_back("../MODEL/Maria/Warrior Idle.dae", &m_Model[0]);
-	m_Animation.emplace_back("../MODEL/Maria/Great Sword Walk.dae", &m_Model[0]);
-	m_Animation.emplace_back("../MODEL/Maria/Great Sword Run.dae", &m_Model[0]);
-	m_Animation.emplace_back("../MODEL/Maria/Great Sword Walk Back.dae", &m_Model[0]);
-	m_Animation.emplace_back("../MODEL/Maria/Great Sword Run Back.dae", &m_Model[0]);
-	m_Animation.emplace_back("../MODEL/Maria/Great Sword 180 Turn.dae", &m_Model[0]);
-	m_Animation.emplace_back("../MODEL/Maria/Great Sword Turn Left.dae", &m_Model[0]);
-	m_Animation.emplace_back("../MODEL/Maria/Great Sword Turn Right.dae", &m_Model[0]);
-	m_Animation.emplace_back("../MODEL/Maria/Great Sword Slash Single.dae", &m_Model[0]);
-	m_Animation.emplace_back("../MODEL/Maria/Great Sword Blocking.dae", &m_Model[0]);
-	m_Animation.emplace_back("../MODEL/Maria/Standing Dive Forward.dae", &m_Model[0]);
-	m_Animation.emplace_back("../MODEL/Maria/Great Sword Jump Attack.dae", &m_Model[0]);
+	m_Animation.push_back(new Animation("../MODEL/Maria/Great Sword Idle.dae", m_Model[0]));
+	m_Animation.push_back(new Animation("../MODEL/Maria/Warrior Idle.dae", m_Model[0]));
+	m_Animation.push_back(new Animation("../MODEL/Maria/Great Sword Walk.dae", m_Model[0]));
+	m_Animation.push_back(new Animation("../MODEL/Maria/Great Sword Run.dae", m_Model[0]));
+	m_Animation.push_back(new Animation("../MODEL/Maria/Great Sword Walk Back.dae", m_Model[0]));
+	m_Animation.push_back(new Animation("../MODEL/Maria/Great Sword Run Back.dae", m_Model[0]));
+	m_Animation.push_back(new Animation("../MODEL/Maria/Great Sword 180 Turn.dae", m_Model[0]));
+	m_Animation.push_back(new Animation("../MODEL/Maria/Great Sword Turn Left.dae", m_Model[0]));
+	m_Animation.push_back(new Animation("../MODEL/Maria/Great Sword Turn Right.dae", m_Model[0]));
+	m_Animation.push_back(new Animation("../MODEL/Maria/Great Sword Slash Single.dae", m_Model[0]));
+	m_Animation.push_back(new Animation("../MODEL/Maria/Great Sword Blocking.dae", m_Model[0]));
+	m_Animation.push_back(new Animation("../MODEL/Maria/Standing Dive Forward.dae", m_Model[0]));
+	m_Animation.push_back(new Animation("../MODEL/Maria/Great Sword Jump Attack.dae", m_Model[0]));
 
-	Player player;
+	Player* player = new Player();
 	for (int i = 0; i < m_Model.size(); i++)
-		player.LoadModel(&m_Model[i]);
+		player->LoadModel(m_Model[i]);
 	for (int i = 0; i < m_Animation.size(); i++)
-		player.LoadAnimation(&m_Animation[i]);
-	player.SetupAnimator();
+		player->LoadAnimation(m_Animation[i]);
+	player->SetupAnimator();
 
 	//アニメーションブレンド用ブレンダーオブジェ
 	m_Blender.reserve(14);
 	for (int i = 0; i < m_Animation.size(); i++)
 	{
-		Blender blender;
-		blender.AnimationIn = &m_Animation[i];
-		blender.FadeInTime = BLD_FADEIN * blender.AnimationIn->GetTicksPerSecond();
-		blender.StartTime = BLD_START * blender.AnimationIn->GetTicksPerSecond();
-		blender.Loop = true;
-		blender.StaticFadein = false;
-		blender.ZeroFadein = false;
-		m_Blender.emplace_back(std::move(blender));
-
+		Blender* blender = new Blender();
+		blender->AnimationIn = m_Animation[i];
+		blender->FadeInTime = BLD_FADEIN * blender->AnimationIn->GetTicksPerSecond();
+		blender->StartTime = BLD_START * blender->AnimationIn->GetTicksPerSecond();
+		blender->Loop = true;
+		blender->StaticFadein = false;
+		blender->ZeroFadein = false;
+		m_Blender.push_back(blender);
 	}
-	m_Blender[U_TURN].Loop = false;
-	m_Blender[ATTACK1].Loop = false;
-	m_Blender[BLOCK].Loop = false;
-	m_Blender[DODGE].Loop = false;
+	m_Blender[U_TURN]->Loop = false;
+	m_Blender[ATTACK1]->Loop = false;
+	m_Blender[BLOCK]->Loop = false;
+	m_Blender[DODGE]->Loop = false;
 
-	Blender blender;
-	blender.AnimationIn = &m_Animation[IDLE];
-	blender.FadeInTime = BLD_FADEIN * blender.AnimationIn->GetTicksPerSecond();
-	blender.StartTime = BLD_START * blender.AnimationIn->GetTicksPerSecond();
-	blender.Loop = true;
-	blender.StaticFadein = false;
-	blender.ZeroFadein = true;
-	m_Blender.emplace_back(std::move(blender));
-	blender.StaticFadein = true;
-	blender.ZeroFadein = false;
-	m_Blender.emplace_back(std::move(blender));
+	Blender* blender1 = new Blender();
+	blender1->AnimationIn = m_Animation[IDLE];
+	blender1->FadeInTime = BLD_FADEIN * blender1->AnimationIn->GetTicksPerSecond();
+	blender1->StartTime = BLD_START * blender1->AnimationIn->GetTicksPerSecond();
+	blender1->Loop = true;
+	blender1->StaticFadein = false;
+	blender1->ZeroFadein = true;
+	m_Blender.push_back(blender1);
+
+	Blender* blender2 = new Blender();
+	blender2->AnimationIn = m_Animation[IDLE];
+	blender2->FadeInTime = BLD_FADEIN * blender2->AnimationIn->GetTicksPerSecond();
+	blender2->StartTime = BLD_START * blender2->AnimationIn->GetTicksPerSecond();
+	blender2->Loop = true;
+	blender2->StaticFadein = true;
+	blender2->ZeroFadein = false;
+	m_Blender.push_back(blender2);
 
 	for (int i = 0; i < m_Blender.size(); i++)
-		player.LoadBlender(&m_Blender[i]);
+		player->LoadBlender(m_Blender[i]);
 
 	//プレイヤー生成
-	m_Player.push_back(std::move(player));
+	m_Player.push_back(player);
 
 	//カメラをプレイヤーに注目（ThirdPeron　Camera）
-	m_Camera.LoadFoucs(&m_Player[0].GetPos());
+	m_Camera.LoadFoucs(&m_Player[0]->GetPos());
 
 	//Lightの設置
 	DirLight* light = new DirLight();
@@ -510,10 +531,10 @@ bool Game::InitResouce()
 	m_Shadow.emplace_back(light, 0);		//0=Dirlight
 
 	//メッシュフィールド
-	m_Field.emplace_back(MESH_POS, MESH_ROT, MESH_X, MESH_Y, MESH_SIZE, MESH_SIZE);
-	m_Field[0].LoadTexture(std::string("../TEXTURE/wall.jpg"), std::string("texture_diffuse"));
-	m_Field[0].LoadTexture(std::string("../TEXTURE/NormalMap.jpg"), std::string("texture_normal"));
-	m_Field[0].LoadTexture(std::string("../TEXTURE/SpecularMap.jpg"), std::string("texture_specular"));
+	m_Field.push_back(new MeshField(MESH_POS, MESH_ROT, MESH_X, MESH_Y, MESH_SIZE, MESH_SIZE));
+	m_Field[0]->LoadTexture(std::string("../TEXTURE/wall.jpg"), std::string("texture_diffuse"));
+	m_Field[0]->LoadTexture(std::string("../TEXTURE/NormalMap.jpg"), std::string("texture_normal"));
+	m_Field[0]->LoadTexture(std::string("../TEXTURE/SpecularMap.jpg"), std::string("texture_specular"));
 	return true;
 }
 
@@ -603,7 +624,7 @@ void Game::processInput(GLFWwindow* window)
 	//退出
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-	Player& player = m_Player[0];
+	Player& player = *m_Player[0];
 	player.m_Unable = false;
 
 	bool input = false;
@@ -630,27 +651,27 @@ void Game::processInput(GLFWwindow* window)
 	{
 		//プレイヤー操作
 		if (KeyBoard::IskeyTriggered(window, GLFW_KEY_L))
-			m_Player[0].ProcessKeyboard(InputState::P_LOCK, m_Timer.DeltaTime(), m_Camera);
+			m_Player[0]->ProcessKeyboard(InputState::P_LOCK, m_Timer.DeltaTime(), m_Camera);
 
 		if (KeyBoard::IskeyPressed(window, GLFW_KEY_W))
 		{
-			m_Player[0].ProcessKeyboard(InputState::P_FORWARD, m_Timer.DeltaTime(), m_Camera);
+			m_Player[0]->ProcessKeyboard(InputState::P_FORWARD, m_Timer.DeltaTime(), m_Camera);
 			input = true;
 		}
 		else if (KeyBoard::IskeyPressed(window, GLFW_KEY_S))
 		{
-			m_Player[0].ProcessKeyboard(InputState::P_BACKWARD, m_Timer.DeltaTime(), m_Camera);
+			m_Player[0]->ProcessKeyboard(InputState::P_BACKWARD, m_Timer.DeltaTime(), m_Camera);
 			input = true;
 		}
 
 		if (KeyBoard::IskeyPressed(window, GLFW_KEY_A))
 		{
-			m_Player[0].ProcessKeyboard(InputState::P_LEFT, m_Timer.DeltaTime(), m_Camera);
+			m_Player[0]->ProcessKeyboard(InputState::P_LEFT, m_Timer.DeltaTime(), m_Camera);
 			input = true;
 		}
 		else if (KeyBoard::IskeyPressed(window, GLFW_KEY_D))
 		{
-			m_Player[0].ProcessKeyboard(InputState::P_RIGHT, m_Timer.DeltaTime(), m_Camera);
+			m_Player[0]->ProcessKeyboard(InputState::P_RIGHT, m_Timer.DeltaTime(), m_Camera);
 			input = true;
 		}
 
@@ -765,7 +786,7 @@ void Game::processInput(GLFWwindow* window)
 	}
 
 	if (!input && m_Input)
-		m_Player[0].ProcessKeyboard(InputState::P_NONE, m_Timer.DeltaTime(), m_Camera);
+		m_Player[0]->ProcessKeyboard(InputState::P_NONE, m_Timer.DeltaTime(), m_Camera);
 
 
 
@@ -780,7 +801,7 @@ void Game::calculateFPS(GLFWwindow* window) {
 		fps = (float)(frameCount / elapsedTime);
 
 		std::stringstream ss;
-		ss << "FPS: " << fps << "  " << m_Player[0].GetPos().x << "  " << m_Player[0].GetPos().y << "  " << m_Player[0].GetPos().z;
+		ss << "FPS: " << fps << "  " << m_Player[0]->GetPos().x << "  " << m_Player[0]->GetPos().y << "  " << m_Player[0]->GetPos().z;
 
 		glfwSetWindowTitle(window, ss.str().c_str());
 
@@ -803,7 +824,7 @@ void Game::ResetLight()
 void Game::ReadNodeHierarchyImGui(NodeData& node)
 {
 	ImGui::PushID(&node);
-	Bone* Bone = m_Player[0].m_Animator.GetCurrentAni()->FindBone(node.name);
+	Bone* Bone = m_Player[0]->m_Animator.GetCurrentAni()->FindBone(node.name);
 	size_t lastSlashPos = node.name.find_last_of('_');
 	if (Bone)
 	{
@@ -870,7 +891,7 @@ void Game::SeteUseTrue(NodeData& node)
 
 void Game::UseAllBones()
 {
-	SeteUseTrue(m_Player[0].m_Animator.GetCurrentAni()->GetModel()->GetRootNode());
+	SeteUseTrue(m_Player[0]->m_Animator.GetCurrentAni()->GetModel()->GetRootNode());
 
 }
 

@@ -53,7 +53,7 @@ private:
 	void PreDraw();					//描画前処理
 
 	void RenderShadow();			//シャドウマップ用テクスチャをレンダ
-	void DrawQuad();				//2dテクスチャを全画面表示
+	
 
 	//　CALLBACK関数
 	static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -76,15 +76,16 @@ private:
 	static Timer m_Timer;			//タイマー
 	string m_WinName;				//window名
 
-	vector<Shader> m_Shaders;		//シャディ
-	vector<Model> m_Model;			//モデル
-	vector<Animation> m_Animation;	//アニマシオン
-	vector<Blender>	m_Blender;		//ブレンダー　
+	vector<Shader>     m_Shaders;	//シェーダー
+
+	vector<Model*>     m_Model;		//モデル
+	vector<Animation*> m_Animation;	//アニマシオン
+	vector<Blender*>   m_Blender;	//ブレンダー　
 	
-	vector<Player> m_Player;		//プレイヤー
-	vector<Light*>  m_Light;		//ライトポイント
-	vector<MeshField> m_Field;		//メッシュフィールド
-	vector<ShadowMap> m_Shadow;		//シャドウマップ　
+	vector<Player*>     m_Player;	//プレイヤー
+	vector<Light*>     m_Light;		//ライトポイント
+	vector<MeshField*>  m_Field;		//メッシュフィールド
+	vector<ShadowMap>  m_Shadow;	//シャドウマップ　
 
 	//FPS計算用変数
 	float lastTime = 0.0;
