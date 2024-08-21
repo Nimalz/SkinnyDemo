@@ -192,6 +192,7 @@
     <ClCompile Include="player.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="shadowmap.cpp" />
+    <ClCompile Include="skybox.cpp" />
     <ClCompile Include="stb_image.cpp" />
     <ClCompile Include="timer.cpp" />
     <ClCompile Include="vertex.cpp" />
@@ -203,6 +204,7 @@
     <ClInclude Include="assimp_glm_helpers.h" />
     <ClInclude Include="bone.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="cubemap.h" />
     <ClInclude Include="Dependencies\include\FBXSDK\fbxsdk.h" />
     <ClInclude Include="Dependencies\include\glm\glm.hpp" />
     <ClInclude Include="Dependencies\include\glm\gtc\matrix_transform.hpp" />
@@ -231,6 +233,7 @@
     <ClInclude Include="player.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="shadowmap.h" />
+    <ClInclude Include="skybox.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="meshfield.h" />
     <ClInclude Include="timer.h" />
@@ -247,6 +250,8 @@
     <None Include="field_normal.vs" />
     <None Include="shadowmap.fs" />
     <None Include="shadowmap.vs" />
+    <None Include="skybox.fs" />
+    <None Include="skybox.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

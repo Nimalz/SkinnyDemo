@@ -25,6 +25,7 @@ Light::~Light()
 
 void Light::BindLight(Shader& shader)
 {
+	shader.use();
 	if (use)
 	{
 		//shader.use();
@@ -48,6 +49,7 @@ DirLight::~DirLight()
 
 void DirLight::BindLight(Shader& shader)
 {
+	shader.use();
 	if (use)
 	{
 		Light::BindLight(shader);

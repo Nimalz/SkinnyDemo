@@ -4,11 +4,9 @@
 #include <vector>
 #include "mesh.h"
 #include "gameobject.h"
-#include "stb_image.h"
 #include <memory>
-//*****************************************************************************
-// プロトタイプ宣言
-//*****************************************************************************
+
+
 class MeshField:public GameObject
 {
 public:

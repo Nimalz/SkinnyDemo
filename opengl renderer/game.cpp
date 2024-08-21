@@ -62,6 +62,14 @@ void Game::Release()
 	m_Field.clear();
 	m_Field.shrink_to_fit();
 
+	for (int i = 0; i < m_Skybox.size(); i++)
+	{
+		m_Skybox[i]->Clear();
+		delete m_Skybox[i];
+	}
+	m_Skybox.clear();
+	m_Skybox.shrink_to_fit();
+
 	for (int i = 0; i < m_Player.size(); i++)
 	{
 		delete m_Player[i];
@@ -164,15 +172,13 @@ void Game::PreDraw()
 
 void Game::DrawPolygons()
 {
-	Shader& ourShader = m_Shaders[0];
-	ourShader.use();
-
-	m_Shadow[0].BindShadow(ourShader);
-	m_Camera.BindCamera(ourShader);
+	//プレイヤー描画
+	m_Shadow[0].BindShadow(m_Shaders[0]);
+	m_Camera.BindCamera(m_Shaders[0]);
 	for (int i = 0; i < m_Player.size(); i++)
 	{
-		m_Player[i]->BindFinalBoneMatrices(ourShader);
-		m_Player[i]->BindWorldMatrix(ourShader);
+		m_Player[i]->BindFinalBoneMatrices(m_Shaders[0]);
+		m_Player[i]->BindWorldMatrix(m_Shaders[0]);
 	}
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -180,7 +186,7 @@ void Game::DrawPolygons()
 	for (int i = 0; i < m_Player.size(); i++)
 		m_Player[i]->Draw(m_Shaders[0]);
 
-	m_Shaders[1].use();
+	//フィールド描画
 	m_Shadow[0].BindShadow(m_Shaders[1]);
 	glm::mat3 model = glm::mat3(1.0f);
 	m_Camera.BindCamera(m_Shaders[1]);
@@ -188,6 +194,10 @@ void Game::DrawPolygons()
 	reinterpret_cast<DirLight*>(m_Light[0])->BindLight(m_Shaders[1]);
 	for (int i = 0; i < m_Field.size(); i++)
 		m_Field[i]->DrawMeshField(m_Shaders[1]);
+
+	//Skybox描画
+	for (int i = 0; i < m_Skybox.size(); i++)
+		m_Skybox[i]->DrawSkybox(m_Shaders[4], m_Camera);
 }
 
 void Game::RenderShadow()
@@ -414,11 +424,12 @@ bool Game::InitOpenGL()
 	//深度テスト
 	glEnable(GL_DEPTH_TEST);
 	//シェーダ
-	m_Shaders.reserve(3);
+	m_Shaders.reserve(5);
 	m_Shaders.emplace_back("anime_normal.vs", "anime_normal.fs");
 	m_Shaders.emplace_back("field_normal.vs", "field_normal.fs");
 	m_Shaders.emplace_back("shadowmap.vs", "shadowmap.fs");
 	m_Shaders.emplace_back("debug_quad.vs", "debug_quad_depth.fs");
+	m_Shaders.emplace_back("skybox.vs", "skybox.fs");
 	glEnable(GL_CULL_FACE);
 
 	return true;
@@ -535,6 +546,19 @@ bool Game::InitResouce()
 	m_Field[0]->LoadTexture(std::string("../TEXTURE/wall.jpg"), std::string("texture_diffuse"));
 	m_Field[0]->LoadTexture(std::string("../TEXTURE/NormalMap.jpg"), std::string("texture_normal"));
 	m_Field[0]->LoadTexture(std::string("../TEXTURE/SpecularMap.jpg"), std::string("texture_specular"));
+
+	vector<std::string> faces
+	{
+		"../TEXTURE/skybox/right.jpg",
+		"../TEXTURE/skybox/left.jpg",
+		"../TEXTURE/skybox/top.jpg",
+		"../TEXTURE/skybox/bottom.jpg",
+		"../TEXTURE/skybox/front.jpg",
+		"../TEXTURE/skybox/back.jpg"
+	};
+	m_Skybox.push_back(new Skybox());
+	m_Skybox[0]->LoadTexture(faces);
+
 	return true;
 }
 

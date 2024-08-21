@@ -23,7 +23,7 @@ public:
 	void EndShadowPass();								//レンダto深度マップ
 	void SetupLightFrustumDir(GameObject*);				//Light視点のProj、View行列を設置
 	inline unsigned int GetShadowTex() { return m_DepthMap;}
-	void BindShadow(Shader&);									//描画する前にシャドウマップ関係Uniform、テクスチャをバインド
+	void BindShadow(Shader&);							//描画する前にシャドウマップ関係Uniform、テクスチャをバインド
 private:
 	unsigned int depthMapFBO;							//深度マップFBO
 	const unsigned int m_ShadowMapHeight;

@@ -18,6 +18,7 @@
 #include "player.h"
 #include "meshfield.h"
 #include "shadowmap.h"
+#include "skybox.h"
 
 //メッシュフィールド生成係数
 #define MESH_POS (glm::vec3(0.0f, 0.0f, 0.0f))
@@ -82,10 +83,11 @@ private:
 	vector<Animation*> m_Animation;	//アニマシオン
 	vector<Blender*>   m_Blender;	//ブレンダー　
 	
-	vector<Player*>     m_Player;	//プレイヤー
+	vector<Player*>    m_Player;	//プレイヤー
 	vector<Light*>     m_Light;		//ライトポイント
-	vector<MeshField*>  m_Field;		//メッシュフィールド
+	vector<MeshField*> m_Field;		//メッシュフィールド
 	vector<ShadowMap>  m_Shadow;	//シャドウマップ　
+	vector<Skybox*>    m_Skybox;
 
 	//FPS計算用変数
 	float lastTime = 0.0;

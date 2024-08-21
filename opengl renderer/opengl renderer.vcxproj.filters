@@ -33,9 +33,6 @@
     <Filter Include="Model">
       <UniqueIdentifier>{dc80e5d9-fed3-4db2-b4cb-4c403b2216f0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Field">
-      <UniqueIdentifier>{32844fb7-5eb6-4d29-aa53-421ee0e2f445}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Animation">
       <UniqueIdentifier>{71c248d5-1d8c-42a3-89ff-84c2a28eaa6d}</UniqueIdentifier>
     </Filter>
@@ -68,6 +65,15 @@
     </Filter>
     <Filter Include="Light\ShadowMap">
       <UniqueIdentifier>{a0e4551b-4c5a-4209-b9b1-b967a212d28f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CubeMap">
+      <UniqueIdentifier>{dfce7dcb-55ac-40e5-b855-814643797ff0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameObject\Field">
+      <UniqueIdentifier>{32844fb7-5eb6-4d29-aa53-421ee0e2f445}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameObject\Skybox">
+      <UniqueIdentifier>{8fe398ba-b634-4f16-b09f-882b7026153e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -102,7 +108,7 @@
       <Filter>Model</Filter>
     </ClCompile>
     <ClCompile Include="meshfield.cpp">
-      <Filter>Field</Filter>
+      <Filter>GameObject\Field</Filter>
     </ClCompile>
     <ClCompile Include="mesh.cpp">
       <Filter>Model</Filter>
@@ -158,6 +164,9 @@
     <ClCompile Include="shadowmap.cpp">
       <Filter>Light\ShadowMap</Filter>
     </ClCompile>
+    <ClCompile Include="skybox.cpp">
+      <Filter>GameObject\Skybox</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stb_image.h">
@@ -206,7 +215,7 @@
       <Filter>Model</Filter>
     </ClInclude>
     <ClInclude Include="meshfield.h">
-      <Filter>Field</Filter>
+      <Filter>GameObject\Field</Filter>
     </ClInclude>
     <ClInclude Include="mesh.h">
       <Filter>Model</Filter>
@@ -274,6 +283,12 @@
     <ClInclude Include="shadowmap.h">
       <Filter>Light\ShadowMap</Filter>
     </ClInclude>
+    <ClInclude Include="cubemap.h">
+      <Filter>CubeMap</Filter>
+    </ClInclude>
+    <ClInclude Include="skybox.h">
+      <Filter>GameObject\Skybox</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="anime_normal.fs">
@@ -304,6 +319,12 @@
       <Filter>GLSL</Filter>
     </None>
     <None Include="debug_quad_depth.fs">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="skybox.vs">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="skybox.fs">
       <Filter>GLSL</Filter>
     </None>
   </ItemGroup>

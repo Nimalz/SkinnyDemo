@@ -62,6 +62,7 @@ void ShadowMap::SetupLightFrustumDir(GameObject* ob)
 
 void ShadowMap::BindShadow(Shader& shader)
 {
+	shader.use();
 	shader.setMat4("lightPV", m_LightPV);//lightPV行列をバインド
 	glActiveTexture(GL_TEXTURE8);
 	shader.setInt("shadowMap", 8);

@@ -143,13 +143,14 @@ void Player::UpdateAnimation(float dt)
 
 void Player::Draw(Shader& shader)
 {
+	shader.use();
 	if (m_Use)
 		m_Model->Draw(shader);
 }
 
 void Player::BindFinalBoneMatrices(Shader& shader)
 {
-	//shader.use();
+	shader.use();
 	std::vector<glm::mat4>& transforms = m_Animator.GetFinalBoneMatrices();
 	for (int i = 0; i < transforms.size(); ++i)
 	{
@@ -160,6 +161,7 @@ void Player::BindFinalBoneMatrices(Shader& shader)
 
 void Player::BindWorldMatrix(Shader& shader)
 {
+	shader.use();
 	UpdateWorldTrans();
 	shader.setMat4("model", m_WorldTrans);
 }
