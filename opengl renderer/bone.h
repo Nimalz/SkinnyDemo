@@ -31,9 +31,8 @@ struct KeyScale
 };
 
 class Bone
-{	
-public:
-	bool m_Unmasked;			// 骨の影響をマスクしてるか（true＝使用中　false＝マスク中）
+{
+
 private:
 	//keyframe transform matrixを記録
 	std::vector<KeyPosition> m_Positions;
@@ -57,20 +56,12 @@ public:
 	// Localtransform行列の更新
 	void Update(float animationTime, unsigned int fps)
 	{
-		if (m_Unmasked)
-		{
-			glm::mat4 translation = InterpolatePosition(animationTime, fps);
-			glm::mat4 rotation = InterpolateRotation(animationTime, fps);
-			glm::mat4 scale = InterpolateScaling(animationTime, fps);
-			m_LocalTransform = translation * rotation * scale;
-		}
-		else
-		{
-			glm::mat4 translation = InterpolatePosition(0.0f, fps);
-			glm::mat4 rotation = InterpolateRotation(0.0f, fps);
-			glm::mat4 scale = InterpolateScaling(0.0f, fps);
-			m_LocalTransform = translation * rotation * scale;
-		}
+
+		glm::mat4 translation = InterpolatePosition(animationTime, fps);
+		glm::mat4 rotation = InterpolateRotation(animationTime, fps);
+		glm::mat4 scale = InterpolateScaling(animationTime, fps);
+		m_LocalTransform = translation * rotation * scale;
+
 
 	}
 

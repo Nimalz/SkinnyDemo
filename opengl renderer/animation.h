@@ -22,8 +22,9 @@ private:
 	unsigned int m_TotalFrames;			//アニメイシヨンのフレイム数
 public:
 	unsigned int m_FPS;					//秒間フレイム数
+	const std::string m_Name;			
 public:
-	Animation(const std::string& animationPath, Model* model);
+	Animation(const std::string& animationPath, Model* model,const std::string& name);
 	~Animation();
 	Bone* FindBone(const std::string& name);
 	inline int& GetTicksPerSecond() { return m_TicksPerSecond; }

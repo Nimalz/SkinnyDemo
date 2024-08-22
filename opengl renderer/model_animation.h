@@ -23,6 +23,14 @@
 #include "assimp_glm_helpers.h"
 #include "animdata.h"
 
+enum BoneInfluenceIndex
+{
+	PRIME,
+	SUB,
+	NONE,
+
+};
+
 struct NodeData
 {
 	glm::mat4 transformation;			//•êƒm[ƒh‚Ö‚Ì•ÏŠ·s—ñ

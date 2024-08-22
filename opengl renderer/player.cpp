@@ -29,7 +29,6 @@ Player::Player()
 	m_Front = glm::vec3(0.0f, 0.0f, -1.0f);
 	m_Right = glm::vec3(1.0f, 0.0f, 0.0f);
 	m_Use = true;
-
 }
 
 Player::Player(Player&& other)noexcept
@@ -48,7 +47,6 @@ Player::Player(Player&& other)noexcept
 	m_Right = std::move(other.m_Right);
 	m_Animator = std::move(other.m_Animator);
 	m_Unable = std::move(other.m_Unable);
-
 	other.m_Right = glm::vec3(0.0f, 0.0f, 5.0f);
 #ifdef _DEBUG
 	std::cout << "moved!";
@@ -80,13 +78,11 @@ void Player::Update(float dt)
 	if (m_Use)
 	{
 		UpdateAnimation(dt);
-
 	}
 }
 
 void Player::UpdateAnimation(float dt)
 {
-	static int cc = 0;
 	static int uturncount = 0;
 	static bool blocking = false;
 	if ((m_Animator.GetCurrentAni() == m_Moves[U_TURN]) && (uturncount))
@@ -139,6 +135,7 @@ void Player::UpdateAnimation(float dt)
 		m_Animator.UpdateAnimationBlend(dt);
 	}
 
+	
 }
 
 void Player::Draw(Shader& shader)
@@ -317,6 +314,7 @@ void Player::StartBlend(PlayerMove move)
 	{
 		if (m_Animator.StartBlend(m_Blender[move]))
 			m_Move = move;
+		m_Animator.m_Masking = false;
 	}
 
 }
@@ -325,7 +323,11 @@ void Player::StartBlend(Blender* blender,int index)
 {
 
 	if (m_Animator.StartBlend(blender))
+	{
 		m_Move = static_cast<PlayerMove>(index);
+		m_Animator.m_Masking = false;
+	}
+		
 
 }
 
@@ -333,6 +335,7 @@ void Player::PlayAni(PlayerMove move)
 {
 	m_Animator.PlayAni(m_Blender[move]);
 	m_Move = move;
+	m_Animator.m_Masking = false;
 
 }
 

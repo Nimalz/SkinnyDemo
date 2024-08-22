@@ -43,7 +43,6 @@ Bone::Bone(std::string&& name, const aiNodeAnim* channel)
 		data.timeStamp = timeStamp;
 		m_Scales.push_back(std::move(data));
 	}
-	m_Unmasked = true;
 
 }
 

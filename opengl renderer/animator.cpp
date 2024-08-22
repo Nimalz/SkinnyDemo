@@ -6,6 +6,7 @@ Animator::Animator(Animation* animation)
 {
 	m_CurrentTime = 0.0;
 	m_CurrentAnimation = animation;
+	m_SubAnimation = animation;
 	m_DeltaTime = 0.0f;
 	m_BlendInTime = 0.0f;
 	m_FinalBoneMatrices.reserve(MAXBONE);
@@ -26,6 +27,7 @@ void Animator::LoadAnimation(Animation* pAnimation)
 {
 	m_CurrentTime = 0.0;
 	m_CurrentAnimation = pAnimation;
+	m_SubAnimation = pAnimation;
 	m_DeltaTime = 0.0f;
 	m_BlendInTime = 0.0f;
 	m_FinalBoneMatrices.reserve(MAXBONE);
@@ -33,8 +35,14 @@ void Animator::LoadAnimation(Animation* pAnimation)
 	m_Blending = false;
 	m_Blender = nullptr;
 	m_Loop = true;
+	m_PlaySpeed = 1.0f;
 	for (int i = 0; i < MAXBONE; i++)
 		m_FinalBoneMatrices.push_back(glm::mat4(1.0f));
+}
+
+void Animator::LoadSubAni(Animation* pAnimation)
+{
+	m_SubAnimation = pAnimation;
 }
 
 bool Animator::StartBlend(Blender* blender)
@@ -74,7 +82,7 @@ void Animator::PlayAni(Blender* blender)
 
 void Animator::UpdateAnimationBlend(float dt)
 {
-	m_DeltaTime = dt;
+	m_DeltaTime = dt * m_PlaySpeed;
 
 	if (m_CurrentAnimation)
 	{
@@ -88,11 +96,11 @@ void Animator::UpdateAnimationBlend(float dt)
 		}
 		else
 		{
-			m_CurrentTime += m_CurrentAnimation->GetTicksPerSecond() * dt;
+			m_CurrentTime += m_CurrentAnimation->GetTicksPerSecond() * m_DeltaTime * (1.0f - m_BlenderFactor);
 		}
+		m_BlenderFactor += (dt * m_CurrentAnimation->GetTicksPerSecond()) / (m_Blender->FadeInTime);
+		m_BlendInTime += m_Blender->AnimationIn->GetTicksPerSecond() * m_DeltaTime;
 
-		m_BlendInTime += m_Blender->AnimationIn->GetTicksPerSecond() * dt;
-		m_BlenderFactor += (dt* m_CurrentAnimation->GetTicksPerSecond()) / (m_Blender->FadeInTime);
 		m_CurrentTime = fmod(m_CurrentTime, m_CurrentAnimation->GetDuration());
 		m_BlendInTime = fmod(m_BlendInTime, m_Blender->AnimationIn->GetDuration());
 		if (m_BlenderFactor >= 1.0f)
@@ -109,47 +117,29 @@ void Animator::UpdateAnimationBlend(float dt)
 	}
 }
 
-void Animator::UpdateAnimationBlendRot(float dt, glm::vec3 rot)
-{
-	m_DeltaTime = dt;
-
-	if (m_CurrentAnimation)
-	{
-		if ((!m_Blender->StaticFadein))
-		{
-			m_CurrentTime += m_CurrentAnimation->GetTicksPerSecond() * dt;
-		}
-		m_BlendInTime += m_Blender->AnimationIn->GetTicksPerSecond() * dt;
-		m_BlenderFactor += (dt) / (m_Blender->FadeInTime);
-		m_CurrentTime = fmod(m_CurrentTime, m_CurrentAnimation->GetDuration());
-		m_BlendInTime = fmod(m_BlendInTime, m_Blender->AnimationIn->GetDuration());
-		if (m_BlenderFactor >= 1.0f)
-		{
-			EndBlend();
-			CalculateBoneTransform(&m_CurrentAnimation->GetModel()->GetRootNode(), m_CurrentAnimation->GetRootInvTrans());
-		}
-		else
-		{
-			CalculateBoneTransformBlendRot(&m_CurrentAnimation->GetModel()->GetRootNode(), m_CurrentAnimation->GetRootInvTrans(), rot);
-		}
-
-
-	}
-}
-
 bool Animator::UpdateAnimation(float dt)
 {
-	m_DeltaTime = dt;
+	m_DeltaTime = dt * m_PlaySpeed;
 	bool aniEnd = false; //アニマシオン再生済み？
 	if (m_CurrentAnimation)
 	{
-		m_CurrentTime += m_CurrentAnimation->GetTicksPerSecond() * dt;
+		if (m_Masking)
+			m_SubTime += m_SubAnimation->GetTicksPerSecond() * m_DeltaTime;
+		m_CurrentTime += m_CurrentAnimation->GetTicksPerSecond() * m_DeltaTime;
 		if (m_Loop)
+		{
 			m_CurrentTime = fmod(m_CurrentTime, m_CurrentAnimation->GetDuration());
+			m_SubTime = fmod(m_SubTime, m_SubAnimation->GetDuration());
+		}
 		else if (m_CurrentTime >= m_CurrentAnimation->GetDuration())
 		{
 			m_CurrentTime = m_CurrentAnimation->GetDuration() - TRIVAIL_TIME;
+
 			aniEnd = true;
+		}
+		else if (m_SubTime >= m_SubAnimation->GetDuration())
+		{
+			m_SubTime = m_SubAnimation->GetDuration() - TRIVAIL_TIME;
 		}
 
 
@@ -175,23 +165,32 @@ void Animator::CalculateBoneTransform(const NodeData* node, glm::mat4& parentTra
 {
 	std::string nodeName = node->name;				//現在アニメイシヨンのノード名
 	glm::mat4 nodeTransform = node->transformation;	//ボンドなしノードの場合
-
-	Bone* Bone = m_CurrentAnimation->FindBone(nodeName);
-
-	if (Bone)
+	Bone* bone = nullptr;
+	Animation* Ani = nullptr;
+	float time;
+	if (node->unmasked)
 	{
-		if (!node->unmasked)
-			Bone->m_Unmasked = false;
-		else
-			Bone->m_Unmasked = true;
-		Bone->Update(m_CurrentTime, m_CurrentAnimation->m_FPS);
-		nodeTransform = Bone->GetLocalTransform();	//母ボンド空間への変換行列
+		bone = m_CurrentAnimation->FindBone(nodeName);
+		Ani = m_CurrentAnimation;
+		time = m_CurrentTime;
+	}
+	else
+	{
+		bone = m_SubAnimation->FindBone(nodeName);
+		Ani = m_SubAnimation;
+		time = m_SubTime;
+	}
+
+	if (bone)
+	{
+		bone->Update(time, Ani->m_FPS);
+		nodeTransform = bone->GetLocalTransform();	//母ボンド空間への変換行列
 	}
 
 	//　RootBoneを処理する時、parentTransformにRootNodeのnodeTransformの逆行列を入れてるから、globalTransformationが単位行列になる
 	glm::mat4 globalTransformation = parentTransform * nodeTransform;
 
-	auto boneInfoMap = m_CurrentAnimation->GetBoneIDMap();
+	auto boneInfoMap = Ani->GetBoneIDMap();
 	if (boneInfoMap.find(nodeName) != boneInfoMap.end())
 	{
 		int index = boneInfoMap[nodeName].id;
@@ -309,3 +308,32 @@ void Animator::SetCurrentTime(float dt)
 {
 	m_CurrentTime = dt;
 }
+
+
+//void Animator::UpdateAnimationBlendRot(float dt, glm::vec3 rot)
+//{
+//	m_DeltaTime = dt;
+//
+//	if (m_CurrentAnimation)
+//	{
+//		if ((!m_Blender->StaticFadein))
+//		{
+//			m_CurrentTime += m_CurrentAnimation->GetTicksPerSecond() * dt;
+//		}
+//		m_BlendInTime += m_Blender->AnimationIn->GetTicksPerSecond() * dt;
+//		m_BlenderFactor += (dt) / (m_Blender->FadeInTime);
+//		m_CurrentTime = fmod(m_CurrentTime, m_CurrentAnimation->GetDuration());
+//		m_BlendInTime = fmod(m_BlendInTime, m_Blender->AnimationIn->GetDuration());
+//		if (m_BlenderFactor >= 1.0f)
+//		{
+//			EndBlend();
+//			CalculateBoneTransform(&m_CurrentAnimation->GetModel()->GetRootNode(), m_CurrentAnimation->GetRootInvTrans());
+//		}
+//		else
+//		{
+//			CalculateBoneTransformBlendRot(&m_CurrentAnimation->GetModel()->GetRootNode(), m_CurrentAnimation->GetRootInvTrans(), rot);
+//		}
+//
+//
+//	}
+//}

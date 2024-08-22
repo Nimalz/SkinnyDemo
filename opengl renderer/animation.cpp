@@ -1,7 +1,7 @@
 #include "animation.h"
 #include <cmath>
 
-Animation::Animation(const std::string& animationPath, Model* model)
+Animation::Animation(const std::string& animationPath, Model* model, const std::string& name):m_Name(name)
 {
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(animationPath, aiProcess_Triangulate);

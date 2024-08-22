@@ -17,8 +17,9 @@
 struct Blender
 {
 	Animation* AnimationIn;								//これから再生するアニマシオン
-	float FadeInTime;									//アニマシオン切り替え済みまでの時間（秒）
+	float FadeInTime;									//アニマシオン切り替え総時間（秒）
 	float StartTime;									//アニマシオンの何秒から再生
+
 	bool Loop;											//ブレンドインアニマシオンをループ再生？
 	bool StaticFadein;									//ブレンド中現アニマシオンを更新するか？
 	bool ZeroFadein;									//ブレンドする時現アニマシオンをゼロ時点に戻る？
@@ -29,15 +30,22 @@ class Animator
 private:
 	std::vector<glm::mat4> m_FinalBoneMatrices;			//頂点に施す最終変化行列
 	Animation* m_CurrentAnimation;						//再生してるアニマシオン
+	Animation* m_SubAnimation;							//サブアニマシオン（maslking用）
 
+	
+	float m_SubTime;
 	float m_CurrentTime;								//現在時点
 	float m_DeltaTime;									//フレイムタイム
+	bool  m_Loop;										//アニマシオンをループ再生？（true：call UpdateAnimation; false: 現在アニメイシヨン一回だけ再生）
 
 	Blender* m_Blender;									//使用中のブレンド構造体
 	float m_BlendInTime;								//ブレンド中次のアニマシオンの現在時点
 	float m_BlenderFactor;								//ブレンド係数
 	bool  m_Blending;									//アニメイシヨンのブレンドイン中？
-	bool  m_Loop;										//アニマシオンをループ再生？（true：call UpdateAnimation; false: 現在アニメイシヨン一回だけ再生）
+
+public:
+	float m_PlaySpeed;									//再生速度　(0＜m_PlaySpeed)
+	bool  m_Masking;
 public:
 	Animator(Animation* animation);
 	Animator() = default;
@@ -45,10 +53,10 @@ public:
 
 	void Showframe(int index);							//フレイム取得
 	void LoadAnimation(Animation* pAnimation);			//アニマシオンを再生
-
+	void LoadSubAni(Animation* pAnimation);
 	bool UpdateAnimation(float dt);						//アニマシオンの更新(ループバージョン)
 	void UpdateAnimationBlend(float dt);				//アニマシオンブレンドの更新
-	void UpdateAnimationBlendRot(float dt,glm::vec3 rot);
+	//void UpdateAnimationBlendRot(float dt,glm::vec3 rot);
 														//FinalBoneMatricesを取得
 	void CalculateBoneTransform(const NodeData* node, glm::mat4& parentTransform);
 	void CalculateBoneTransformBlend(const NodeData* node, glm::mat4& parentTransform);

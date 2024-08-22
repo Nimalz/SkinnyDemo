@@ -65,7 +65,6 @@ private:
 public:
 	Animator m_Animator;			//アニマシオン制御用アニメター
 	bool m_Unable;					//ブレンド禁止状態
-
 public:
 	Player(Model* model, std::vector <Animation*>& ani);
 	Player();
