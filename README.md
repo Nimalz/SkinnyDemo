@@ -5,7 +5,7 @@
 制作形式：個人制作 制作環境：C＋＋、OpenGL、VisualStudio2019 
 動作環境：Windows 
 実行ファイルをダウンロード:https://drive.google.com/file/d/1D35O24E8BTutyqjI2E7k7R9QBjYTw3qq/view?usp=sharing
-紹介動画：https://www.youtube.com/watch?v=hWI0laObXxo
+紹介動画：[https://www.youtube.com/watch?v=hWI0laObXxo](https://youtu.be/bUSMCBVrzL8?si=5JETc5IGbKZ98n9d)
 
 作品紹介： 本作品はスキンメッシュアニメーションの読み込み、再生、ブレンディング及びマスキン グ機能を実現した技術デモです。 
 本作品で実現したこと： 
