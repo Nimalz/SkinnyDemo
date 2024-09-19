@@ -63,10 +63,10 @@ vec3 CalcDirLight(vec3 normal);
 float CalShadowMap(vec4,vec3);
 void main()
 {           
-     // obtain normal from normal map in range [0,1]
+
     vec3 normal = texture(texture_normal1, fs_in.TexCoords).rgb;
-    // transform normal vector to range [-1,1]
-    normal = normalize(normal * 2.0 - 1.0);  // this normal is in tangent space
+
+    normal = normalize(normal * 2.0 - 1.0);  
 
     FragColor = vec4(CalcDirLight(normal), 1.0);
 
@@ -74,54 +74,53 @@ void main()
 
 vec3 CalcDirLight(vec3 normal)
 {
-    vec3 lightDir = normalize(-fs_in.TangentLightDir); 
-    // diffuse shading
-    float diff = max(dot(lightDir,normal), 0.0);
-    // specular shading
-    vec3 viewDir = normalize(fs_in.TangentViewPos - fs_in.TangentPos);
-    vec3 reflectDir = reflect(lightDir, normal);  
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
-    // shadow 
-    float shadow = CalShadowMap(fs_in.LightSpacePos,normal);
-    // combine results
-    vec3 ambient = light.ambient * texture(texture_diffuse1, fs_in.TexCoords).rgb;
-    vec3 diffuse = light.diffuse * diff * texture(texture_diffuse1, fs_in.TexCoords).rgb;
-    vec3 specular = light.specular * spec * texture(texture_specular1, fs_in.TexCoords).rgb;
-    return (ambient + (diffuse + specular)*(1.0-shadow));
+vec3 lightDir = normalize(-fs_in.TangentLightDir); 
+   // diffuse shading
+   float diff = max(dot(lightDir,normal), 0.0);
+   // specular shading
+   vec3 viewDir = normalize(fs_in.TangentViewPos - fs_in.TangentPos);
+   vec3 reflectDir = reflect(lightDir, normal);  
+   float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
+   // shadow 
+   float shadow = CalShadowMap(fs_in.LightSpacePos,normal);
+   // combine results
+   vec3 ambient = light.ambient * texture(texture_diffuse1, fs_in.TexCoords).rgb;
+   vec3 diffuse = light.diffuse * diff * texture(texture_diffuse1, fs_in.TexCoords).rgb;
+   vec3 specular = light.specular * spec * texture(texture_specular1, fs_in.TexCoords).rgb;
+
+   return (ambient + (diffuse + specular)*(1.0-shadow));
     
 }
 float CalShadowMap(vec4 pos,vec3 normal)
 {
-    // perform perspective divide
-    vec3 projCoords = pos.xyz / pos.w;
-    // transform to [0,1] range
-    projCoords = projCoords * 0.5 + 0.5;
-    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-    float closestDepth = texture(shadowMap, projCoords.xy).r; 
-    // get depth of current fragment from light's perspective
-    float currentDepth = projCoords.z;
-    // calculate bias (based on depth map resolution and slope)
-    //vec3 normal = normalize(fs_in.Normal);
-    //vec3 lightDir = normalize(lightPos - fs_in.FragPos);
-    float bias = max(0.05 * (1.0 - dot(normal, normalize(light.direction))), 0.005);
-    // check whether current frag pos is in shadow
-    // float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
-    // PCF
-    float shadow = 0.0;
-    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
-    for(int x = -1; x <= 1; ++x)
-    {
-        for(int y = -1; y <= 1; ++y)
-        {
-            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
-            shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;        
-        }    
-    }
-    shadow /= 9.0;
+    float shadow;
+
+      vec3 projCoords = pos.xyz;
+      // [0,1] rangeに変換
+      projCoords = projCoords * 0.5 + 0.5; 
+          
+
+      float closestDepth = texture(shadowMap, projCoords.xy).r; 
+      float currentDepth = projCoords.z;
+
+      //Bias取得（SM解像度とピクセルとライトの間の角度によって決める）
+      float bias = max(0.001 * (1.0 - dot(normalize(texture(texture_normal1, fs_in.TexCoords).rgb), -light.direction)), 0.0005); 
+      // PCF（周りのピクセル深度を平均化）
+      shadow = 0.0;
+      vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+
+      for(int x = -1; x <= 1; ++x)
+      {
+          for(int y = -1; y <= 1; ++y)
+          {
+              float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
+              shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;        
+          }    
+      }
+      
+      shadow /= 9.0;
     
-    // keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
-    if(projCoords.z > 1.0)
-        shadow = 0.0;
+
         
     return shadow;
 }

@@ -183,7 +183,7 @@ void Game::DrawPolygons()
 	}
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	m_Light[0]->BindLight(m_Shaders[0]);
+	reinterpret_cast<DirLight*>(m_Light[0])->BindLight(m_Shaders[0]);
 	for (int i = 0; i < m_Player.size(); i++)
 		m_Player[i]->Draw(m_Shaders[0]);
 
@@ -245,7 +245,13 @@ void Game::DrawImgui()
 
 	ImGui::End();
 
+
 	ImGui::Begin("Light");
+	ImGui::Text("Direction");
+	ImGui::SliderFloat("X", &reinterpret_cast<DirLight*>(m_Light[0])->direction.x, -1.0f, 1.0f);
+	ImGui::SliderFloat("Y", &reinterpret_cast<DirLight*>(m_Light[0])->direction.y, -1.0f, 1.0f);
+	ImGui::SliderFloat("Z", &reinterpret_cast<DirLight*>(m_Light[0])->direction.z, -1.0f, 1.0f);
+
 	ImGui::Text("Ambient");
 	ImGui::SliderFloat("R", &m_Light[0]->ambient.x, 0.0f, 1.0f);
 	ImGui::SliderFloat("G", &m_Light[0]->ambient.y, 0.0f, 1.0f);
@@ -267,7 +273,7 @@ void Game::DrawImgui()
 	ImGui::End();
 	ImGui::Begin("Aniamtion");
 	ImGui::Checkbox("Play Animation", &m_AniPause);
-	const char* items[] = { "Idling", "Idling2", "Walking", "Running", "Walking back", "Running back", "Uturn", "Left turn", "Right turn", "Attack", "Block", "Rolling", "Attack2","Claping","Ready"};
+	const char* items[] = { "Idling", "Idling2", "Walking", "Running", "Walking back", "Running back", "Uturn", "Left turn", "Right turn", "Attack", "Block", "Rolling", "Attack2","Claping","Ready" };
 	static int item_current_idx = 0;
 	static int item_blend_idx = 0;
 	static Blender blender;
@@ -465,7 +471,7 @@ bool Game::InitResouce()
 
 	//アニメーションを読み込む
 	m_Animation.reserve(13);
-	m_Animation.push_back(new Animation("../MODEL/Maria/Great Sword Idle.dae", m_Model[0],"Idling"));
+	m_Animation.push_back(new Animation("../MODEL/Maria/Great Sword Idle.dae", m_Model[0], "Idling"));
 	m_Animation.push_back(new Animation("../MODEL/Maria/Warrior Idle.dae", m_Model[0], "Idling2"));
 	m_Animation.push_back(new Animation("../MODEL/Maria/Great Sword Walk.dae", m_Model[0], "Walking"));
 	m_Animation.push_back(new Animation("../MODEL/Maria/Great Sword Run.dae", m_Model[0], "Running"));
@@ -477,7 +483,7 @@ bool Game::InitResouce()
 	m_Animation.push_back(new Animation("../MODEL/Maria/Great Sword Slash Single.dae", m_Model[0], "Attack"));
 	m_Animation.push_back(new Animation("../MODEL/Maria/Great Sword Blocking.dae", m_Model[0], "Block"));
 	m_Animation.push_back(new Animation("../MODEL/Maria/Standing Dive Forward.dae", m_Model[0], "Rolling"));
-	m_Animation.push_back(new Animation("../MODEL/Maria/Great Sword Jump Attack.dae", m_Model[0],"Attack2"));
+	m_Animation.push_back(new Animation("../MODEL/Maria/Great Sword Jump Attack.dae", m_Model[0], "Attack2"));
 	m_Animation.push_back(new Animation("../MODEL/Maria/Clapping.dae", m_Model[0], "Claping"));
 	m_Animation.push_back(new Animation("../MODEL/Maria/Ready Idle.dae", m_Model[0], "Ready"));
 
@@ -864,13 +870,13 @@ void Game::ReadNodeHierarchyImGui(NodeData& node)
 		{
 			//当骨を使用するか？
 			ImGui::Checkbox("Use for Ani1?", &node.unmasked);
-		
+
 			if (!node.unmasked)
 			{
 
 				SeteUseFalse(node);
 			}
-				
+
 			for (int i = 0; i < node.childrenCount; i++)
 			{
 				ReadNodeHierarchyImGui(node.children[i]);

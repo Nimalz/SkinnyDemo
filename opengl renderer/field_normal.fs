@@ -70,11 +70,6 @@ float CalShadowMap(vec4 pos,vec3 normal)
     vec3 projCoords = pos.xyz;
     // [0,1] range‚É•ÏŠ·
     projCoords = projCoords * 0.5 + 0.5; 
-    //farplaneŠO‚Ìê‡shadow‚ð‚O‚É‚·‚é
-    if(projCoords.z > 1.0)
-    {
-        return 0.0;
-    }
         
 
     float closestDepth = texture(shadowMap, projCoords.xy).r; 
@@ -98,7 +93,6 @@ float CalShadowMap(vec4 pos,vec3 normal)
     shadow /= 9.0;
     
 
-   
         
     return shadow;
 }
