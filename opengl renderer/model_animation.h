@@ -18,7 +18,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include <map>
+#include <unordered_map>
 #include <vector>
 #include "assimp_glm_helpers.h"
 #include "animdata.h"
@@ -70,7 +70,7 @@ public:
 	}
 	inline NodeData& GetRootNode() { return m_RootNode; }
 private:
-	std::map<string, BoneInfo> m_BoneInfoMap;				//　ボンド名ー＞ボンドインフォ　のマップ
+	std::unordered_map<string, BoneInfo> m_BoneInfoMap;		//　ボンド名ー＞ボンドインフォ　のマップ
 	int m_BoneCounter = 0;									//　ボンド数
 	NodeData m_RootNode;									//  ルートノード
 #ifdef TEXTURE_LOADED_CHEC									

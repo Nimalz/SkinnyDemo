@@ -2,7 +2,7 @@
 #ifndef ANIMATION_H
 #define ANIMATION_H
 #include <vector>
-#include <map>
+#include <unordered_map>
 #include <glm/glm.hpp>
 #include <assimp/scene.h>
 #include "bone.h"
@@ -30,7 +30,7 @@ public:
 	inline int& GetTicksPerSecond() { return m_TicksPerSecond; }
 	inline float& GetDuration() { return m_Duration; }
 	inline glm::mat4& GetRootInvTrans() { return m_RootInvTransformation; }
-	inline const std::map<std::string, BoneInfo>& GetBoneIDMap()
+	inline const std::unordered_map<std::string, BoneInfo>& GetBoneIDMap()
 	{
 		return m_Model->GetBoneInfoMap();
 	}
